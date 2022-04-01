@@ -102,6 +102,8 @@ When working on Cloud9, you can specify the same region where your Cloud9 enviro
 sudo yum install jq -y
 export AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
 echo "export AWS_REGION=${AWS_REGION}" | tee -a ~/.bash_profile
+export AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+echo "export AWS_ACCOUNT=${AWS_ACCOUNT}" | tee -a ~/.bash_profile
 ```
 
 ### Resizing the Cloud9
@@ -749,6 +751,18 @@ cdk bootstrap
 Finally, we are ready to deploy our stack.
 ```
 ./deploy.sh
+```
+
+## Push the `mlflow-pyfunc` container to ECR
+
+In order to deploy to SageMaker an mlflow model, you need to create a serving container that implements what the SageMaker runtime expects to find. MLFlow makes this effor easier providing a CLI command that build the image locally and pushes to your ECR the image.
+
+```bash
+# install the libraries
+pip install mlflow==1.23.1 boto3
+
+# build and push the container to ECR
+mlflow sagemaker build-and-push-container
 ```
 
 ## Testing the Http Api 

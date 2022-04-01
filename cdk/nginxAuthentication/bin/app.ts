@@ -4,7 +4,10 @@ import * as cdk from 'aws-cdk-lib';
 import { MLflowVpcStack } from '../lib/mlflow-vpc-stack';
 import { HttpGatewayStack } from '../lib/http-gateway-stack';
 import { SageMakerNotebookInstanceStack } from '../lib/sagemaker-notebook-instance-stack';
-const env = { region: (process.env['AWS_REGION'] || 'us-west-2') };
+import { SageMakerStudioUserStack } from '../lib/sagemaker-studio-user-stack';
+const env = { region: (process.env['AWS_REGION'] || 'us-west-2'), account: process.env['AWS_ACCOUNT'] };
+
+const domainId = (process.env['DOMAIN_ID'] || "" )
 
 const mlflowSecretName = 'mlflow-server-credentials'
 
@@ -25,11 +28,10 @@ const httpGatewayStack = new HttpGatewayStack(
     { env: env }
 );
 
-new SageMakerNotebookInstanceStack(
+new SageMakerStudioUserStack(
     app,
-    'SageMakerNotebookInstanceStack', 
-    httpGatewayStack.api,
-    mlflowSecretName,
+    'StageMakerStudioUserStack',
     mlflowVpcStack.mlflowSecretArn,
+    domainId,
     { env: env }
 )
